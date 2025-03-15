@@ -1,0 +1,39 @@
+version: '3'
+services:
+  redis-document:
+    image: redis:latest
+    ports:
+      - "6379:6379"
+
+  redis-auth:
+    image: redis:latest
+    ports:
+      - "6380:6379"
+
+  document-storage:
+    build: ./services/document-storage
+    ports:
+      - "3000:3000"
+    depends_on:
+      - redis-document
+
+  authentication:
+    build: ./services/authentication
+    ports:
+      - "3002:3002"
+    depends_on:
+      - redis-auth
+
+  rendering:
+    build: ./services/rendering
+    ports:
+      - "3001:3001"
+
+  api-gateway:
+    build: ./api-gateway
+    ports:
+      - "8080:8080"
+    depends_on:
+      - document-storage
+      - rendering
+      - authentication
